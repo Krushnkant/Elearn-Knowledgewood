@@ -1,0 +1,1 @@
+[26-Jan-2022 06:58:04 UTC] PHP Fatal error:  Cannot redeclare App\Http\Controllers\UserController::updateUserProfile() in /home4/matorqhi/public_html/knowledgeapp/knowledgeapp/app/Http/Controllers/UserController.php on line 51

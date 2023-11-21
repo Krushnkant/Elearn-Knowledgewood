@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="203" height="41" viewBox="0 0 203 41">
+  <g id="Group_2744" data-name="Group 2744" transform="translate(-73 -12)">
+    <text id="Knowledgewood" transform="translate(129 39)" fill="#eeb01c" font-size="20" font-family="SegoeUI-Bold, Segoe UI" font-weight="700" letter-spacing="-0.05em"><tspan x="0" y="0">Knowledgewood</tspan></text>
+    <g id="Group_160" data-name="Group 160" transform="translate(38 -46)">
+      <circle id="Ellipse_22" data-name="Ellipse 22" cx="20.5" cy="20.5" r="20.5" transform="translate(35 58)" fill="#eeb01c"/>
+      <g id="Icon_ionic-ios-menu" data-name="Icon ionic-ios-menu" transform="translate(42.5 62.875)">
+        <path id="Path_259" data-name="Path 259" d="M21.185,11.576H5.225A.728.728,0,0,1,4.5,10.85h0a.728.728,0,0,1,.725-.725h15.96a.728.728,0,0,1,.725.725h0A.728.728,0,0,1,21.185,11.576Z"/>
+        <path id="Path_260" data-name="Path 260" d="M21.185,18.326H5.225A.728.728,0,0,1,4.5,17.6h0a.728.728,0,0,1,.725-.725h15.96a.728.728,0,0,1,.725.725h0A.728.728,0,0,1,21.185,18.326Z" transform="translate(0 -2.397)"/>
+        <path id="Path_261" data-name="Path 261" d="M15.625,25.076H4.984c-.266,0-.484-.326-.484-.725h0c0-.4.218-.725.484-.725H15.625c.266,0,.484.326.484.725h0C16.109,24.749,15.891,25.076,15.625,25.076Z" transform="translate(0 -4.795)"/>
+      </g>
+    </g>
+  </g>
+</svg>
