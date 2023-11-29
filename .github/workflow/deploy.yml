@@ -1,0 +1,17 @@
+name: Deploy via SSH
+on: push
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy app
+        uses: appleboy/ssh-action@v0.1.4
+        with:
+          host: 192.46.215.231
+          username: ${{ secrets.knowlett }}
+          password: ${{ secrets.Passw0rd@#123 }}
+
+          script: |
+            cd ~/var/www
+            git clone https://${{ secrets.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 }}:x-oauth-basic@github.com:Krushnkant/Elearn-Knowledgewood.git
+            echo "Deployment Successful"
