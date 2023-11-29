@@ -10,15 +10,15 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css">
   <link rel="stylesheet" href="{{asset('css/style.css')}}" type="text/css">
 </head>
-<body>
-    <section class="mt-4 mb-4">
+<body class="">
+    <section class="auth-page-body">
         <div class="container">
             <div class="login">
                 <div class="row login_box">
                     <div class="col-md-12">
                         <form action="{{ route('login.post') }}" method="POST">
                             @csrf
-                            <div class="p-3 py-5">
+                            <div class="p-0 p-md-3 py-md-5">
                                 <div class="d-flex justify-content-between align-items-center mb-3">
                                     <h4 class="text-center">LogIn</h4>
                                 </div>
@@ -51,7 +51,7 @@
                                     </div>
                                 </div>
                                 <div class="text-center">
-                                    <button class="button" type="submit">Sign In</button>
+                                    <button class="button auth-submit-btn" type="submit">Sign In</button>
                                     <div class="forgot-password">
                                         <a href="{{ route('forgotPassword') }}">Forgot Password?</a>
                                     </div>
