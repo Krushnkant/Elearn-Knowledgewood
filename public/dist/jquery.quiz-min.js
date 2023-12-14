@@ -77,11 +77,15 @@
                     o.options.counter && (i += '<div id="quiz-counter" class="tests-header"></div>'),
                     i += '<div id="questions" class="tests-body">',
                     z.each(s, function (t, e) {
+                        // console.log('t: ' + t);
+                        // console.log('e: ' + e);
                         var qid = e.qId;
                         var optno = 'A';
+                        var corIndex = e.corIndex;
                         queResultArr.push({
                             'questionId': qid,
-                            'myAnswerId': 0
+                            'myAnswerId': 0,
+                            'currectAns': ''
                         });
                         i += '<div class="question-container">',
                             i += '<div class="question">',
@@ -89,8 +93,10 @@
                             i += '</div>',
                             i += '<div class="row answers">',
                             z.each(e.options,
-                                function (t, e) {
-                                    i += '<div class="col-md-6 col-sm-6"><a href="#" class="ans-option" data-index="' + t + '" data-qid="' + qid + '" data-optid="' + e.optsId + '"><div class="ans-option-number">' + optno + '.</div>' + e.optsTxt + '</a></div>'
+                                function (opt, e) {
+                                    i += '<div class="col-md-6 col-sm-6"><a href="#" class="ans-option" data-index="' + opt + '" data-qid="' + qid + '" data-optid="' + e.optsId + '"><div class="ans-option-number">' + optno + '.</div>' + e.optsTxt + '</a></div>';
+                                    // console.log('opt: ' + opt + ' | corIndex: ' + corIndex);
+                                    if (opt === corIndex) queResultArr[t].currectAns = e.optsId;
                                     optno = String.fromCharCode(optno.charCodeAt() + 1);
                                 }),
                             i += "</div>",
@@ -159,10 +165,11 @@
                         'questionId': queId,
                         'myAnswerId': ansId
                     });*/
-                    if (n === s[t].correctIndex) e.addClass("correct"), i = s[t].correctResponse,
-                        p++;
-                    else if (e.addClass("incorrect"), i = s[t].incorrectResponse, !o.options
-                        .allowIncorrect) return void o.methods.gameOver(i);
+                    if (n === s[t].corIndex)
+                        e.addClass("correct"), i = s[t].correctResponse, p++;
+                    else if (e.addClass("incorrect"), i = s[t].incorrectResponse, !o.options.allowIncorrect)
+                        return void o.methods.gameOver(i);
+
                     q++ === u && (z("#quiz-next-btn").show(), z("#finish-control-box").show(), z("#quiz-finish-btn").show()), z(
                         "#quiz-response").html(i), z("#quiz-controls").fadeIn(), "function" ==
                         typeof o.options.answerCallback && o.options.answerCallback(q, n, s[t])

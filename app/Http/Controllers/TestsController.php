@@ -189,7 +189,7 @@ class TestsController extends Controller
               "optsTxt" => $opts->options,
             );
             if ($opts->is_correct == 1) {
-              $correctIndex = $optInd;
+              $corIndex = $optInd; // Correct Index
             }
             $optInd++;
           }
@@ -199,7 +199,7 @@ class TestsController extends Controller
             "q" => $singleQue->title,
             // "options" => $optsArr,
             "options" => $optsArr,
-            "correctIndex" => $correctIndex,
+            "corIndex" => $corIndex,
             "correctResponse" => $singleQue->explanation,
             "incorrectResponse" => $singleQue->explanation,
           );
