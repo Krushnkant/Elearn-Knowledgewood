@@ -173,6 +173,7 @@ class TestsController extends Controller
         $que = 0;
         $courseId = 0;
         $assessmentId = 0;
+        
         foreach ($alldata as $singleQue) {
 
           if ($que == 0) {
@@ -183,6 +184,7 @@ class TestsController extends Controller
           $Options = $singleQue->question_options;
           $optsArr = array();
           $optInd = 0;
+          $corIndex1 = array();
           foreach ($Options as $opts) {
             $optsArr[] = array(
               "optsId" => $opts->id,
@@ -190,6 +192,7 @@ class TestsController extends Controller
             );
             if ($opts->is_correct == 1) {
               $corIndex = $optInd; // Correct Index
+              $corIndex1[] = $optInd;
             }
             $optInd++;
           }
@@ -200,6 +203,7 @@ class TestsController extends Controller
             // "options" => $optsArr,
             "options" => $optsArr,
             "corIndex" => $corIndex,
+            "corIndex1" => $corIndex1,
             "correctResponse" => $singleQue->explanation,
             "incorrectResponse" => $singleQue->explanation,
           );
