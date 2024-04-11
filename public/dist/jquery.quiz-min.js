@@ -31,6 +31,33 @@
             q = 1,
             p = 0,
             f = !1;
+        var clickCount = 1;    
+        var hasAns = '';
+
+        // Function to find the difference between two arrays
+        function arrayDifference(arr1, arr2) {
+            var diff = [];
+            
+            // Check each element in arr1
+            $.each(arr1, function(index, value) {
+                // If the element is not found in arr2, add it to the difference array
+                if ($.inArray(value, arr2) === -1) {
+                    diff.push(value);
+                }
+            });
+            
+            // Check each element in arr2
+            $.each(arr2, function(index, value) {
+                // If the element is not found in arr1, add it to the difference array
+                if ($.inArray(value, arr1) === -1) {
+                    diff.push(value);
+                }
+            });
+            
+            return diff;
+        }
+
+
         o.methods = {
             init: function () {
                 o.methods.setup(), z(v).on("click", n, function (t) {
@@ -81,7 +108,10 @@
                         // console.log('e: ' + e);
                         var qid = e.qId;
                         var optno = 'A';
+                        var corIndex1 = e.corIndex1;
                         var corIndex = e.corIndex;
+                        var optStr = "";
+                        var optCount = 1;
                         queResultArr.push({
                             'questionId': qid,
                             'myAnswerId': 0,
@@ -96,7 +126,23 @@
                                 function (opt, e) {
                                     i += '<div class="col-md-6 col-sm-6"><a href="#" class="ans-option" data-index="' + opt + '" data-qid="' + qid + '" data-optid="' + e.optsId + '"><div class="ans-option-number">' + optno + '.</div>' + e.optsTxt + '</a></div>';
                                     // console.log('opt: ' + opt + ' | corIndex: ' + corIndex);
-                                    if (opt === corIndex) queResultArr[t].currectAns = e.optsId;
+                                    //if (opt === corIndex) queResultArr[t].currectAns = e.optsId;
+                                    var arr1 = corIndex1.split(',');
+                                    var opt1 = opt.toString();
+                                    if(arr1.length > 1){
+                                        if (arr1.includes(opt1)) {
+                                            if(optCount == 1){
+                                               optStr += e.optsId;
+                                            }else{
+                                                optStr += ","+e.optsId;
+                                            }
+                                            queResultArr[t].currectAns = optStr;
+                                            optCount++;
+                                        }
+                                    }else{
+                                        if (opt === corIndex) queResultArr[t].currectAns = e.optsId;
+                                    }
+                                    
                                     optno = String.fromCharCode(optno.charCodeAt() + 1);
                                 }),
                             i += "</div>",
@@ -152,27 +198,96 @@
             },
             answerQuestion: function (t) {
                 if (!f) {
-                    f = !0;
+                   
                     var e = z(t),
                         i = "",
                         n = e.data("index"),
                         t = q - 1;
                     var ansId = e.data("optid");
                     var queId = e.data("qid");
-                    var objIndex = queResultArr.findIndex((obj => obj.questionId == queId));
-                    queResultArr[objIndex].myAnswerId = ansId;
-                    /*queResultArr.push({
-                        'questionId': queId,
-                        'myAnswerId': ansId
-                    });*/
-                    if (n === s[t].corIndex)
-                        e.addClass("correct"), i = s[t].correctResponse, p++;
-                    else if (e.addClass("incorrect"), i = s[t].incorrectResponse, !o.options.allowIncorrect)
-                        return void o.methods.gameOver(i);
+                    var countAns = s[t].corIndexCount;
+                    
+                    if(countAns > 1){
+                        var objIndex = queResultArr.findIndex((obj => obj.questionId == queId));
+                        if(countAns == clickCount){
+                            f = !0;
+                            q++;
+                            clickCount = 1;
+                            
+                            hasAns +=  ","+ansId
+                            queResultArr[objIndex].myAnswerId = hasAns;
+                            hasAns ="";
 
-                    q++ === u && (z("#quiz-next-btn").show(), z("#finish-control-box").show(), z("#quiz-finish-btn").show()), z(
-                        "#quiz-response").html(i), z("#quiz-controls").fadeIn(), "function" ==
-                        typeof o.options.answerCallback && o.options.answerCallback(q, n, s[t])
+                            var currectAnsStr = queResultArr[objIndex].currectAns;
+                            var myAnswerIdStr = queResultArr[objIndex].myAnswerId
+                            var currectAnsArray =  currectAnsStr.split(',');
+                            var myAnswerIdArray =  myAnswerIdStr.split(',');
+                            var difference = arrayDifference(myAnswerIdArray, currectAnsArray);
+                          
+                            if (difference.length === 0) {
+                                i = s[t].correctResponse;
+                            }else{
+                                i = s[t].incorrectResponse;
+                            }
+                            
+                        }else{
+                            clickCount++;
+                            hasAns +=  ansId
+                            queResultArr[objIndex].myAnswerId = hasAns;
+                        }
+                       
+                
+                        var ansStr = s[t].corIndex1;
+                        var arr = ansStr.split(',');
+                   
+                        var n1 = n.toString();
+                        if (arr.includes(n1)) {
+                            e.addClass("correct");
+                             // Get the difference between the arrays
+                            p++;
+                        } else {
+                            e.addClass("incorrect");
+                
+                            if (!o.options.allowIncorrect) {
+                                // Assuming `o.methods.gameOver` is defined elsewhere in your code
+                                o.methods.gameOver(i);
+                                return; // Exit the function if `allowIncorrect` is not allowed
+                            }
+                        }
+                        if (q === u) {
+                            document.getElementById("quiz-next-btn").style.display = "block";
+                            document.getElementById("finish-control-box").style.display = "block";
+                            document.getElementById("quiz-finish-btn").style.display = "block";
+                        }
+                        
+                        document.getElementById("quiz-response").innerHTML = i;
+                        document.getElementById("quiz-controls").style.display = "block";
+                        
+                        if (typeof o.options.answerCallback === "function") {
+                            o.options.answerCallback(q, n, s[t]);
+                        } 
+
+
+                    }else{
+                        f = !0;
+                        var objIndex = queResultArr.findIndex((obj => obj.questionId == queId));
+                        queResultArr[objIndex].myAnswerId = ansId;
+                        /*queResultArr.push({
+                            'questionId': queId,
+                            'myAnswerId': ansId
+                        });*/
+                     
+                        if (n === s[t].corIndex)
+                            e.addClass("correct"), i = s[t].correctResponse, p++;
+                        else if (e.addClass("incorrect"), i = s[t].incorrectResponse, !o.options.allowIncorrect)
+                            return void o.methods.gameOver(i);
+
+                        q++ === u && (z("#quiz-next-btn").show(), z("#finish-control-box").show(), z("#quiz-finish-btn").show()), z(
+                            "#quiz-response").html(i), z("#quiz-controls").fadeIn(), "function" ==
+                            typeof o.options.answerCallback && o.options.answerCallback(q, n, s[t])
+
+                        }
+                    
                 }
             },
             nextQuestion: function () {

@@ -203,7 +203,8 @@ class TestsController extends Controller
             // "options" => $optsArr,
             "options" => $optsArr,
             "corIndex" => $corIndex,
-            "corIndex1" => $corIndex1,
+            "corIndex1" => implode(',',$corIndex1),
+            "corIndexCount" => count($corIndex1),
             "correctResponse" => $singleQue->explanation,
             "incorrectResponse" => $singleQue->explanation,
           );
