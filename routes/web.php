@@ -42,6 +42,7 @@ Route::group(['middleware'=>'web'],function(){
    Route::get('testSets/{id}',[TestsController::class,'testSetIndex']);
    Route::get('testReport/{id}',[TestsController::class,'testReportIndex']);
    Route::get('testQuestions/{testId}/{index}',[TestsController::class,'getSetQuestions']);
+   Route::get('test/data',[TestsController::class,'testData'])->name('test-data');
    Route::get('Logout',[LoginController::class,'Logout'])->name('Logout');
    Route::view('Checkotp',[LoginController::class,'Checkotp']);
    Route::view('/Checkotp', 'checkotp');

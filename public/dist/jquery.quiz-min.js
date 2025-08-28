@@ -9,17 +9,28 @@
     z.quiz = function (t, e) {
         var o = this;
         o.$el = z(t), o.$el.data("quiz", o), o.options = z.extend(z.quiz.defaultOptions, e);
+
+        var timeData = 14400
+        var times = o.options.stop_time;
+        if(times)
+        {
+          var timeData = times; 
+        }
         var queResultArr = [];
         var count, interval;
-        var timerSec = 90;
+        var timerSec = timeData; // 240 minutes (14400 seconds)
         var userid = o.options.userId;
         var courseid = o.options.courseId;
         var assessmentid = o.options.assessmentId;
         var apiUrl = o.options.apiUrl;
         var usertoken = o.options.usertoken;
         var baseUrl = o.options.baseUrl;
+        var total_attend = o.options.total_attend;
+        var total_qtn = o.options.total_qtn;
+        var q = o.options.questionsAttended ? parseInt(o.options.questionsAttended) + 1 : 1;
         var s = o.options.questions,
-            u = s.length,
+            // u = s.length,
+            u = o.options.totalQuestions,
             i = o.options.startScreen,
             n = o.options.startButton,
             r = o.options.homeButton,
@@ -28,7 +39,6 @@
             d = o.options.nextButtonText,
             l = o.options.finishButtonText,
             h = o.options.restartButtonText,
-            q = 1,
             p = 0,
             f = !1;
         var clickCount = 1;    
@@ -57,6 +67,23 @@
             return diff;
         }
 
+        // Function to format time in MM:SS (only minutes and seconds)
+        function formatTime(totalSeconds) {
+            if (totalSeconds < 0) totalSeconds = 0;
+            
+            var minutes = Math.floor(totalSeconds / 60);
+            var seconds = totalSeconds % 60;
+            
+            return (minutes < 10 ? "0" : "") + minutes + ":" + 
+                   (seconds < 10 ? "0" : "") + seconds;
+        }
+
+        function timeToSeconds(timeString) {
+            var parts = timeString.split(":");
+            var minutes = parseInt(parts[0], 10);
+            var seconds = parseInt(parts[1], 10);
+            return (minutes * 60) + seconds;
+        }
 
         o.methods = {
             init: function () {
@@ -65,9 +92,9 @@
                 }), z(v).on("click", r, function (t) {
                     t.preventDefault(), o.methods.home()
                 }), z(v).on("click", ".answers a", function (t) {
-                    t.preventDefault(), o.methods.answerQuestion(this), o.methods.endCounter()
+                    t.preventDefault(), o.methods.answerQuestion(this)
                 }), z(v).on("click", "#quiz-next-btn", function (t) {
-                    t.preventDefault(), o.methods.nextQuestion(), o.methods.endCounter(), o.methods.startCounter()
+                    t.preventDefault(), o.methods.nextQuestion()
                 }), z(v).on("click", "#quiz-finish-btn", function (t) {
                     t.preventDefault(), o.methods.finish()
                 }), z(v).on("click", "#quiz-restart-btn, #quiz-retry-btn", function (t) {
@@ -76,21 +103,26 @@
             },
             startCounter: function () {
                 $("#play-iconbox").html('<i class="bi bi-pause-circle-fill"></i>');
-                count = timerSec;
+                // Don't reset the counter if it's already running
+                if (interval) {
+                    return;
+                }
+                
                 interval = setInterval(function () {
-                    document.getElementById('count').innerHTML = count;
+                    document.getElementById('count').innerHTML = formatTime(count);
                     count--;
 
-                    if (count === 0) {
-                        $("#quiz-next-btn").trigger("click");
-                        count = timerSec;
-                        document.getElementById('count').innerHTML = count;
+                    if (count < 0) {
+                        clearInterval(interval);
+                        // Time's up - automatically finish the quiz
+                        o.methods.finish();
                     }
                 }, 1000);
             },
             endCounter: function () {
                 $("#play-iconbox").html('<i class="bi bi-play-circle-fill"></i>');
                 clearInterval(interval);
+                interval = null;
             },
             setup: function () {
                 var i = "";
@@ -104,8 +136,6 @@
                     o.options.counter && (i += '<div id="quiz-counter" class="tests-header"></div>'),
                     i += '<div id="questions" class="tests-body">',
                     z.each(s, function (t, e) {
-                        // console.log('t: ' + t);
-                        // console.log('e: ' + e);
                         var qid = e.qId;
                         var optno = 'A';
                         var corIndex1 = e.corIndex1;
@@ -125,8 +155,6 @@
                             z.each(e.options,
                                 function (opt, e) {
                                     i += '<div class="col-md-6 col-sm-6"><a href="#" class="ans-option" data-index="' + opt + '" data-qid="' + qid + '" data-optid="' + e.optsId + '"><div class="ans-option-number">' + optno + '.</div>' + e.optsTxt + '</a></div>';
-                                    // console.log('opt: ' + opt + ' | corIndex: ' + corIndex);
-                                    //if (opt === corIndex) queResultArr[t].currectAns = e.optsId;
                                     var arr1 = corIndex1.split(',');
                                     var opt1 = opt.toString();
                                     if(arr1.length > 1){
@@ -156,7 +184,6 @@
                         i += '</div>',
                         i += "</div>"),
                     i += '<div id="quiz-controls" class="pt-3">',
-                    // i += '<p id="quiz-response" class="quiz-response"></p>',
                     i += '<div id="quiz-buttons">',
                     i += '<a href="#" id="quiz-next-btn" class="button countButton">' + d + "</a>",
                     i += "</div>",
@@ -172,7 +199,7 @@
                     i += '<span id="play-iconbox" class="time-stop-btn"></span>';
                 i += '<div class="tests-timing">',
                     i += '<img src="' + baseUrl + 'img/stop-watch.svg"> ',
-                    i += '<span id="count" class="count">90</span> &nbsp; secs remaining',
+                    i += '<span id="count" class="count">' + formatTime(timerSec) + '</span> &nbsp; remaining',
                     i += "</div>",
                     i += "</div>",
                     i += "</div>",
@@ -190,6 +217,8 @@
                     "function" == typeof o.options.setupCallback && o.options.setupCallback()
             },
             start: function () {
+                count = timerSec; // Initialize the timer with 240 minutes
+                
                 o.$el.removeClass("quiz-start-state").addClass("quiz-questions-state"), z(i)
                     .hide(), z("#quiz-controls").show(), z("#quiz-next-btn").show(), z("#timer-box").show(), z("#finish-control-box").show(), z("#quiz-finish-btn").show(), z(
                         "#quiz-restart-btn").hide(), z("#questions").show(), z("#quiz-counter")
@@ -206,7 +235,46 @@
                     var ansId = e.data("optid");
                     var queId = e.data("qid");
                     var countAns = s[t].corIndexCount;
-                    
+
+                    var objIndex = queResultArr.findIndex(obj => obj.questionId == queId);
+                    // If the user answered, send their answer via AJAX
+                    // --- Build my_answers array (as Laravel expects)
+                    var myAnswers = [{
+                        questionId: queId,
+                        myAnswerId: ansId,
+                        currectAns: queResultArr[objIndex].currectAns,   // ✅ real correct answer(s)
+                    }];
+
+                    // --- Base payload
+                    var payload = {
+                        course_id: courseid,
+                        assessment_id: assessmentid,
+                        user_id: userid,
+                        stop_time: timeToSeconds($("#count").text()),    // if you track timer
+                        question_no: q,                           // current question number
+                        set: $("#set_types").val() || "A",         // optional
+                        my_answers: JSON.stringify(myAnswers)     // ✅ must be JSON string
+                    };
+
+                    // --- AJAX request ---
+                    $.ajax({
+                        url: baseUrl+'test/data', 
+                        method: "GET",                   // ✅ POST for saving
+                        timeout: 0,
+                        headers: {
+                            "Accept": "application/json",
+                            "Authorization": "Bearer " + usertoken,
+                            "Content-Type": "application/json"
+                        },
+                        data: payload,    // ✅ send JSON body
+                        success: function (response) {
+                            console.log("Answer saved:", response);
+                        },
+                        error: function (xhr, status, error) {
+                            console.error("Error saving answer:", error);
+                        }
+                    });
+
                     if(countAns > 1){
                         var objIndex = queResultArr.findIndex((obj => obj.questionId == queId));
                         if(countAns == clickCount){
@@ -272,11 +340,7 @@
                         f = !0;
                         var objIndex = queResultArr.findIndex((obj => obj.questionId == queId));
                         queResultArr[objIndex].myAnswerId = ansId;
-                        /*queResultArr.push({
-                            'questionId': queId,
-                            'myAnswerId': ansId
-                        });*/
-                     
+
                         if (n === s[t].corIndex)
                             e.addClass("correct"), i = s[t].correctResponse, p++;
                         else if (e.addClass("incorrect"), i = s[t].incorrectResponse, !o.options.allowIncorrect)
@@ -291,7 +355,6 @@
                 }
             },
             nextQuestion: function () {
-                // alert('Test');
                 if (!f) {
                     q++;
                 }
@@ -310,6 +373,8 @@
                             .hide(), z("#questions").hide(), z("#finish-control-box").show(), z("#quiz-finish-btn").show(), z(c).show()
             },
             finish: function () {
+                // Stop the timer when finishing
+                o.methods.endCounter();
 
                 var settings = {
                     "url": apiUrl,
@@ -353,6 +418,10 @@
                     "function" == typeof o.options.finishCallback && o.options.finishCallback()
             },
             restart: function () {
+                // Reset the timer when restarting
+                count = timerSec;
+                document.getElementById('count').innerHTML = formatTime(count);
+                
                 o.methods.reset(), o.$el.addClass("quiz-questions-state"), z("#questions").show(),
                     z("#quiz-counter").show(), z(".question-container:first-child").show()
                         .addClass("active-question"), o.methods.updateCounter()
@@ -366,13 +435,14 @@
                             .resetCallback && o.options.resetCallback()
             },
             home: function () {
+                // Stop the timer when going home
+                o.methods.endCounter();
                 o.methods.reset(), o.$el.addClass("quiz-start-state"), z(i).show(), "function" ==
                     typeof o.options.homeCallback && o.options.homeCallback()
             },
             updateCounter: function () {
-
                 var t = o.options.counterFormat.replace("%current", q).replace("%total", u);
-                z("#quiz-counter").html('<h6>Question:</h6><h5 class="orange-title mb-0">' + t + '</h5>')
+                z("#quiz-counter").html('<h6>Question:</h6><h5 class="orange-title mb-0" >' + t + '</h5>')
             }
         }, o.methods.init()
     }, z.quiz.defaultOptions = {
