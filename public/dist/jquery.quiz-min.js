@@ -9,17 +9,28 @@
     z.quiz = function (t, e) {
         var o = this;
         o.$el = z(t), o.$el.data("quiz", o), o.options = z.extend(z.quiz.defaultOptions, e);
+
+        var timeData = 14400
+        var times = o.options.stop_time;
+        if(times)
+        {
+          var timeData = times; 
+        }
         var queResultArr = [];
         var count, interval;
-        var timerSec = 14400; // 240 minutes (14400 seconds)
+        var timerSec = timeData; // 240 minutes (14400 seconds)
         var userid = o.options.userId;
         var courseid = o.options.courseId;
         var assessmentid = o.options.assessmentId;
         var apiUrl = o.options.apiUrl;
         var usertoken = o.options.usertoken;
         var baseUrl = o.options.baseUrl;
+        var total_attend = o.options.total_attend;
+        var total_qtn = o.options.total_qtn;
+        var q = o.options.questionsAttended ? parseInt(o.options.questionsAttended) + 1 : 1;
         var s = o.options.questions,
-            u = s.length,
+            // u = s.length,
+            u = o.options.totalQuestions,
             i = o.options.startScreen,
             n = o.options.startButton,
             r = o.options.homeButton,
@@ -28,7 +39,6 @@
             d = o.options.nextButtonText,
             l = o.options.finishButtonText,
             h = o.options.restartButtonText,
-            q = 1,
             p = 0,
             f = !1;
         var clickCount = 1;    
@@ -66,6 +76,13 @@
             
             return (minutes < 10 ? "0" : "") + minutes + ":" + 
                    (seconds < 10 ? "0" : "") + seconds;
+        }
+
+        function timeToSeconds(timeString) {
+            var parts = timeString.split(":");
+            var minutes = parseInt(parts[0], 10);
+            var seconds = parseInt(parts[1], 10);
+            return (minutes * 60) + seconds;
         }
 
         o.methods = {
@@ -201,6 +218,7 @@
             },
             start: function () {
                 count = timerSec; // Initialize the timer with 240 minutes
+                
                 o.$el.removeClass("quiz-start-state").addClass("quiz-questions-state"), z(i)
                     .hide(), z("#quiz-controls").show(), z("#quiz-next-btn").show(), z("#timer-box").show(), z("#finish-control-box").show(), z("#quiz-finish-btn").show(), z(
                         "#quiz-restart-btn").hide(), z("#questions").show(), z("#quiz-counter")
@@ -217,7 +235,46 @@
                     var ansId = e.data("optid");
                     var queId = e.data("qid");
                     var countAns = s[t].corIndexCount;
-                    
+
+                    var objIndex = queResultArr.findIndex(obj => obj.questionId == queId);
+                    // If the user answered, send their answer via AJAX
+                    // --- Build my_answers array (as Laravel expects)
+                    var myAnswers = [{
+                        questionId: queId,
+                        myAnswerId: ansId,
+                        currectAns: queResultArr[objIndex].currectAns,   // ✅ real correct answer(s)
+                    }];
+
+                    // --- Base payload
+                    var payload = {
+                        course_id: courseid,
+                        assessment_id: assessmentid,
+                        user_id: userid,
+                        stop_time: timeToSeconds($("#count").text()),    // if you track timer
+                        question_no: q,                           // current question number
+                        set: $("#set_types").val() || "A",         // optional
+                        my_answers: JSON.stringify(myAnswers)     // ✅ must be JSON string
+                    };
+
+                    // --- AJAX request ---
+                    $.ajax({
+                        url: baseUrl+'test/data', 
+                        method: "GET",                   // ✅ POST for saving
+                        timeout: 0,
+                        headers: {
+                            "Accept": "application/json",
+                            "Authorization": "Bearer " + usertoken,
+                            "Content-Type": "application/json"
+                        },
+                        data: payload,    // ✅ send JSON body
+                        success: function (response) {
+                            console.log("Answer saved:", response);
+                        },
+                        error: function (xhr, status, error) {
+                            console.error("Error saving answer:", error);
+                        }
+                    });
+
                     if(countAns > 1){
                         var objIndex = queResultArr.findIndex((obj => obj.questionId == queId));
                         if(countAns == clickCount){
@@ -385,7 +442,7 @@
             },
             updateCounter: function () {
                 var t = o.options.counterFormat.replace("%current", q).replace("%total", u);
-                z("#quiz-counter").html('<h6>Question:</h6><h5 class="orange-title mb-0">' + t + '</h5>')
+                z("#quiz-counter").html('<h6>Question:</h6><h5 class="orange-title mb-0" >' + t + '</h5>')
             }
         }, o.methods.init()
     }, z.quiz.defaultOptions = {

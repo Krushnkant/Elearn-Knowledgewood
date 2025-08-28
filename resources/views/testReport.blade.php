@@ -13,6 +13,7 @@
   $total_attempt = $alldata->total_attempt;
   $passing_percentage = $alldata->passing_percentage;
   $pdf_download = $alldata->pdf_download;
+  $detailed_pdf_download = isset($alldata->detailed_pdf_download) ? $alldata->detailed_pdf_download :"";
   $categoryWiseReport = $alldata->categoryWiseReport;
 
   $passTxtCls = 'text-green';
@@ -66,6 +67,18 @@
     left: 0;
     top: 0
   }
+
+  .download-buttons {
+  display: flex;
+  gap: 10px; /* space between buttons */
+  margin-top: 15px;
+}
+
+.download-buttons .button {
+  padding: 10px 16px;
+}
+
+
 </style>
 
 <section class="mt-4 mb-4">
@@ -76,7 +89,7 @@
           <div class="tests-content-left">
             <div class="tests-header">
               <h6>Mock Test Report</h6>
-              <h5 class="orange-title mb-0">Successfully Finished | Test 1 | Attempt 1</h5>
+              <h5 class="orange-title mb-0" >Successfully Finished | Test 1 | Attempt 1</h5>
             </div>
             <div class="tests-body">
               <div class="result">
@@ -113,7 +126,10 @@
                     <!-- <a href="#">Knowledge area wise report</a> -->
                   </li>
                 </ul>
-                <a href="{{ $pdf_download }}" target="_blank" class="button">Download</a>
+               <div class="download-buttons">
+                 <a href="{{ $pdf_download }}" target="_blank" class="button">Download</a>
+                 <a href="{{ $detailed_pdf_download }}" target="_blank" class="button">Mock Test Report Download</a>
+               </div>
               </div>
             </div>
           </div>
