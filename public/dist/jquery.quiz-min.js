@@ -355,6 +355,48 @@
                 }
             },
             nextQuestion: function () {
+
+                  var activeQ = $(".active-question");
+                    var queId = activeQ.find(".ans-option").data("qid");   // current question id
+                    var objIndex = queResultArr.findIndex(obj => obj.questionId == queId);
+
+                    // Agar answer select nahi hua hai to default entry save karo
+                    if (queResultArr[objIndex].myAnswerId == 0 || queResultArr[objIndex].myAnswerId == "") {
+                        var myAnswers = [{
+                            questionId: queId,
+                            myAnswerId: 0,   // default = not answered
+                            currectAns: queResultArr[objIndex].currectAns
+                        }];
+
+                        var payload = {
+                            course_id: courseid,
+                            assessment_id: assessmentid,
+                            user_id: userid,
+                            stop_time: timeToSeconds($("#count").text()),
+                            question_no: q,
+                            set: $("#set_types").val() || "A",
+                            my_answers: JSON.stringify(myAnswers)
+                        };
+
+                        $.ajax({
+                            url: baseUrl + 'test/data',
+                            method: "GET",   // ⚠️ yahan POST best hoga
+                            timeout: 0,
+                            headers: {
+                                "Accept": "application/json",
+                                "Authorization": "Bearer " + usertoken,
+                                "Content-Type": "application/json"
+                            },
+                            data: payload,
+                            success: function (response) {
+                                console.log("Default 'Not Answered' saved:", response);
+                            },
+                            error: function (xhr, status, error) {
+                                console.error("Error saving default answer:", error);
+                            }
+                        });
+                    }
+
                 if (!f) {
                     q++;
                 }
