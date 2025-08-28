@@ -43,7 +43,7 @@
 
 
 
-   var setData = $("#set_types").val();
+
     // console.log('Test');
     $.ajax({
       url: '?page=1',
@@ -55,6 +55,7 @@
       }
     })
     .done(function(data) {
+        var setData = $("#set_types").val();
       var data = JSON.parse(data);
       console.log(data);
       var alldata = data.alldata;
@@ -65,6 +66,7 @@
       var usertoken = data.usertoken;
       var baseUrl = data.baseUrl;
       var stop_time = data.stop_time;
+      var set = setData;
       var questionsAttended = data.questionsAttended || 0;
       var totalQuestions = data.totalQuestions || 0;
 
@@ -81,6 +83,7 @@
           apiUrl: apiUrl,
           usertoken: usertoken,
           baseUrl: baseUrl,
+          set: set,
           stop_time: stop_time,
           questionsAttended: questionsAttended,
           totalQuestions: totalQuestions,
