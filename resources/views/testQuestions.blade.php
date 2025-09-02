@@ -68,6 +68,7 @@
       var stop_time = data.stop_time;
       var set = setData;
       var questionsAttended = data.questionsAttended || 0;
+      var correctAnswers = data.correctAnswers || 0;
       var totalQuestions = data.totalQuestions || 0;
 
       if(alldata.length > 0){
@@ -87,6 +88,7 @@
           stop_time: stop_time,
           questionsAttended: questionsAttended,
           totalQuestions: totalQuestions,
+          correctAnswers:correctAnswers,
         });
       } else {
 

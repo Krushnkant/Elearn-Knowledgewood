@@ -239,9 +239,10 @@ public function getSetQuestions(Request $request, $testId, $index)
             'userId' => $UserId, 
             'alldata' => $CustomQueArr, 
             'usertoken' => $usertoken,
+             'correctAnswers'=>isset($data->correct_ans) ? $data->correct_ans : 0,
             'stop_time' => (!empty($data->stop_time) && $data->stop_time != 0) ? $data->stop_time : 14400,
             'totalQuestions' => $totalQuestions, // Send total to frontend
-            'questionsAttended' => (!empty($data->stop_time) && $data->stop_time != 0) ? $questionsAttended + 1 : 0, // Send attended count to frontend
+            'questionsAttended' => (!empty($data->stop_time) && $data->stop_time != 0) ? $questionsAttended : 0, // Send attended count to frontend
         ]);
     }
     
