@@ -28,6 +28,7 @@
         var total_attend = o.options.total_attend;
         var total_qtn = o.options.total_qtn;
         var q = o.options.questionsAttended ? parseInt(o.options.questionsAttended) + 1 : 1;
+        var totalCurrect = o.options.questionsAttended ? parseInt(o.options.questionsAttended) : 0;
         var s = o.options.questions,
             // u = s.length,
             u = o.options.totalQuestions,
@@ -84,6 +85,22 @@
             var seconds = parseInt(parts[1], 10);
             return (minutes * 60) + seconds;
         }
+
+
+        function getTotalCorrect() {
+            let correctCount = 0;
+            queResultArr.forEach(q => {
+                if (!q.myAnswerId) return;
+                let myAnsArray = q.myAnswerId.toString().split(',');
+                let correctArray = q.currectAns.toString().split(',');
+                // If arrays match, count as correct
+                if (arrayDifference(myAnsArray, correctArray).length === 0) {
+                    correctCount++;
+                }
+            });
+            return correctCount;
+        }
+
 
         o.methods = {
             init: function () {
@@ -454,7 +471,8 @@
                     z("#timer-box").hide(),
                     z(a).show();
 
-                var t = o.options.resultsFormat.replace("%score", p).replace("%total", u);
+                var totalCorrects = getTotalCorrect();  // ✅ correct answers including past answers
+                var t = o.options.resultsFormat.replace("%score", totalCorrects).replace("%total", u);
 
                 z("#quiz-results").html(t),
                     "function" == typeof o.options.finishCallback && o.options.finishCallback()
